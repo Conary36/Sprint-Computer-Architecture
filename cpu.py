@@ -58,3 +58,21 @@ class CPU:
         for instruction in program:
             self.ram[memory_address] = instruction
             memory_address += 1
+
+    @property
+    def sp(self):
+        return self.reg[7]
+
+    def ram_read(self, mar):
+        return self.ram[mar]
+
+    def ram_write(self, mdr, mar):
+        self.ram[mar] = mdr
+
+    def alu(self, op, reg_a, reg_b):
+        """ALU operations."""
+        if op == 'ADD':
+            self.reg[reg_a] += self.reg[reg_b]
+        else:
+            raise Exception("Unsopported ALU operations")
+
