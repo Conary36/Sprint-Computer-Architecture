@@ -15,3 +15,25 @@ CMP = 0b10100111
 JMP = 0b01010100
 JEQ = 0b01010101
 JNE = 0b01010110
+
+
+class CPU:
+    """ Main CPU Class"""
+
+    def __init__(self):
+        """ Construct a New CPU"""
+        # max writable ram
+        self.reg = [0] * 8  # register 8 bits
+        # SP points at the value at the top of the stack (most recently pushed), or at address F4 if empty.
+        self.reg[7] = 0xF4  # 244 # int('F4', 16)
+        self.ir = 0  # instruction register
+        self.ram = [0] * 256  # ram is 256 bits
+        self.mar = 0
+        self.mdr = 0
+        self.fl = 0
+        self.pc = 0
+        self.running = True
+        self.execution_table = {HLT: self.hlt, LDI: self.ldi, PRN: self.prn, MUL: self.mul, PUSH: self.push,
+                                POP: self.pop, CALL: self.call, ADD: self.add, RET: self.ret, JMP: self.jmp,
+                                CMP: self.cmp, JEQ: self.jeq, JNE: self.jne}
+        self.ex_table()
