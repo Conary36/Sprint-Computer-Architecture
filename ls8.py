@@ -36,4 +36,25 @@ class CPU:
         self.execution_table = {HLT: self.hlt, LDI: self.ldi, PRN: self.prn, MUL: self.mul, PUSH: self.push,
                                 POP: self.pop, CALL: self.call, ADD: self.add, RET: self.ret, JMP: self.jmp,
                                 CMP: self.cmp, JEQ: self.jeq, JNE: self.jne}
-        self.ex_table()
+
+    def ldi(self, reg_num, mdr):
+        self.reg[reg_num] = mdr
+
+    def prn(self, reg_num):
+        print(self.reg[reg_num])
+
+    def load(self, filename):
+        """Load a program into memory."""
+        memory_address = 0
+        program = []
+        with open(filename) as f:
+            for line in f:
+                split_line = line.split('#')[0]
+                stripped_split_line = split_line.strip()
+                if stripped_split_line != "":
+                    command = int(stripped_split_line, 2)
+                    program.append(command)
+                    print(command)
+        for instruction in program:
+            self.ram[memory_address] = instruction
+            memory_address += 1
