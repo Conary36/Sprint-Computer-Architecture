@@ -1,6 +1,6 @@
 """ CPU COMPUTATION"""
 import sys
-import os.path
+import os
 
 HLT = 0b00000001
 LDI = 0b10000010
@@ -33,9 +33,12 @@ class CPU:
         self.fl = 0
         self.pc = 0
         self.running = True
-        self.execution_table = {HLT: self.hlt, LDI: self.ldi, PRN: self.prn, MUL: self.mul, PUSH: self.push,
-                                POP: self.pop, CALL: self.call, ADD: self.add, RET: self.ret, JMP: self.jmp,
-                                CMP: self.cmp, JEQ: self.jeq, JNE: self.jne}
+        self.execution_table = {}
+        self.ex_table()
+
+    def ex_table(self):
+        self.execution_table[LDI] = self.ldi
+        self.execution_table[PRN] = self.prn
 
     def ldi(self, reg_num, mdr):
         self.reg[reg_num] = mdr
@@ -46,18 +49,23 @@ class CPU:
     def load(self, filename):
         """Load a program into memory."""
         memory_address = 0
-        program = []
-        with open(filename) as f:
-            for line in f:
-                split_line = line.split('#')[0]
-                stripped_split_line = split_line.strip()
-                if stripped_split_line != "":
-                    command = int(stripped_split_line, 2)
-                    program.append(command)
-                    print(command)
-        for instruction in program:
-            self.ram[memory_address] = instruction
-            memory_address += 1
+
+        filepath = os.path.join(os.path.dirname(__file__), filename)
+        try:
+            with open(filepath) as f:
+                for line in f:
+                    num = line.split("#")[0].strip()  # "10000010"
+
+                    try:
+                        instruction = int(num, 2)
+                        self.ram[memory_address] = instruction
+                        memory_address += 1
+                        print(instruction)
+                    except:
+                        continue
+        except:
+            print(f'Could not find file named: {filename}')
+            sys.exit(1)
 
     @property
     def sp(self):
@@ -178,5 +186,7 @@ class CPU:
 
         elif instruction == JNE:
             # If `E` flag is clear (false, 0), jump to the address stored in the given register.
-            if self.flag is not 0b00000001:
+            if self.flag != 0b00000001:
                 self.pc = JMP
+        else:
+            print('Invalied Instruction!')
