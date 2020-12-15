@@ -59,8 +59,6 @@ class CPU:
             self.ram[memory_address] = instruction
             memory_address += 1
 
-
-
     @property
     def sp(self):
         return self.reg[7]
@@ -97,3 +95,66 @@ class CPU:
             print(" %02X" % self.reg[i], end='')
 
         print()
+
+    def run(self):
+        """Run the CPU."""
+        while not HLT:
+            # ir (Instruction Register) = value at memory address in PC (Program Counter)
+            ir = self.ram_read(self.pc)
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+            self.execute_instruction(ir, operand_a, operand_b)
+
+    def execute_instruction(self, instruction, operand_a, operand_b):
+        if instruction == self.HLT:
+            self.HLT = True
+            self.pc += 1
+        elif instruction == PRN:
+            print(self.reg[operand_a])
+            self.pc += 2
+        elif instruction == LDI:
+            self.reg[operand_a] = operand_b
+            self.pc += 3
+        elif instruction == MUL:
+            self.reg[operand_a] *= operand_b
+            self.pc += 3
+
+
+        elif instruction == PUSH:
+            chosen_register = self.ram[self.pc + 1]
+            current_reg_value = self.reg[chosen_register]
+            # Decrement pointer
+            self.reg[self.sp] -= 1
+            self.ram[self.reg[self.sp]] = current_reg_value
+            self.pc += 2
+
+        elif instruction == POP:
+            chosen_register = self.ram[self.pc + 1]
+            current_mem_val = self.ram[self.reg[self.sp]]
+            self.reg[chosen_register] = current_mem_val
+            # Increment pointer
+            self.reg[self.sp] += 1
+            self.pc += 2
+
+        elif instruction == CALL:
+            # PUSH the return address onto the stack
+            ## Find address/index of the command after call
+            next_command_address = self.pc + 2
+            # Push the address onto the stack
+            ## Decrement the pointer
+            self.reg[self.sp] -= 1
+            # add next command address into stack pointer memory
+            self.ram[self.reg[self.sp]] = next_command_address
+            # Jump and set the PC to address directed to by register
+            reg_number = self.ram[self.pc + 1]
+            # Get address of Subroutine out of register
+            address_to_jump_to: int = self.reg[reg_number]
+            # set the PC
+            self.pc = address_to_jump_to
+
+
+
+        elif instruction == RET:
+            self.pc = self.ram[self.reg[self.sp]]
+            # pop from stack
+            self.reg[self.sp] += 1
