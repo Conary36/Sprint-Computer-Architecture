@@ -158,3 +158,25 @@ class CPU:
             self.pc = self.ram[self.reg[self.sp]]
             # pop from stack
             self.reg[self.sp] += 1
+
+        elif instruction == CMP:
+            # If registerA is less than registerB, set the Less-than `L` flag to 1
+            if self.reg[operand_a] < self.reg[operand_b]:
+                self.flag = 0b00000100
+            # If registerA is greater than registerB, set the Greater-than `G` flag to 1
+            elif self.reg[operand_a] > self.reg[operand_b]:
+                self.flag = 0b00000010
+            # otherwise set it to 0.
+            else:
+                self.flag = 0b00000001
+        elif instruction == JEQ:
+            # If `equal` flag is set (true), jump to the address stored in the given register.
+            self.reg[self.sp] = 0b00000001
+        elif instruction == JMP:
+            # Jump to the address stored in the given register.Set the `PC` to the address stored in the given register.
+            self.pc = self.reg[operand_a]
+
+        elif instruction == JNE:
+            # If `E` flag is clear (false, 0), jump to the address stored in the given register.
+            if self.flag is not 0b00000001:
+                self.pc = JMP
